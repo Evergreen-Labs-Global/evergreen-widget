@@ -12,6 +12,7 @@ Next.js application for the [HealthyFarm Laying Hen Welfare Network](https://www
 ## Features
 
 - **Public market panel** at `/widget` — no site header/footer, ready for Webflow iframe embeds
+- **UI preview** at `/preview` — compare multiple embeddable panel layouts (EN/VI)
 - **Script embed** via `/embed.js` — mounts the panel into a `#app` div
 - **Admin dashboard** at `/dashboard` — auth-gated connection status and mock payload preview
 - **Mock market API** at `GET /api/market` — sample JSON until live endpoints are wired
