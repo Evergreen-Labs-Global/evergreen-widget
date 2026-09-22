@@ -1,188 +1,131 @@
-# Evergreen Widget
+# HealthyFarm
 
-Evergreen Widget is a Next.js application that powers the Evergreen analytics dashboard and embedded widgets. The application is designed to integrate with a FastAPI backend, Supabase, and Memberstack while supporting deployment through Vercel.
+Next.js application for the [HealthyFarm Laying Hen Welfare Network](https://www.evergreenlabs.org/healthyfarm-network/home): public market intelligence embeds, admin dashboard, and Supabase authentication.
 
-## Technology Stack
+## Stack
 
-- Next.js 15+
-- React 19
-- TypeScript
-- Tailwind CSS
-- Supabase
-- Memberstack
-- FastAPI (Backend API)
-- Google Cloud (Backend Infrastructure) (Optional)
-- Vercel (Frontend Deployment)
+- Next.js (App Router) + TypeScript + Tailwind CSS
+- Supabase Auth (SSR cookies)
+- Merriweather + Open Sans
+- Brand green `#3A855D`
 
----
+## Features
 
-## Project Status
+- **Public market panel** at `/widget` — no site header/footer, ready for Webflow iframe embeds
+- **Script embed** via `/embed.js` — mounts the panel into a `#app` div
+- **Admin dashboard** at `/dashboard` — auth-gated connection status and mock payload preview
+- **Mock market API** at `GET /api/market` — sample JSON until live endpoints are wired
+- **Supabase schema** in `supabase/schema.sql` for future aggregate storage
 
-Current setup includes:
+> Market API responses are **mocked** from `data/mock/market-intelligence.json`. Swap the loader in `lib/market/get-market-data.ts` when live URLs are available.
 
-- Initial Next.js project structure
-- TypeScript configuration
-- Tailwind CSS configuration
-- Project folder structure
-- Git repository initialization
-- Environment configuration
-- Ready for API integration
-
----
-
-## Installation
-
-Clone the repository
-
-```bash
-git clone <repository-url>
-```
-
-Navigate into the project
-
-```bash
-cd evergreen-widget
-```
-
-Install dependencies
+## Getting started
 
 ```bash
 npm install
-```
-
-Run the development server
-
-```bash
+cp .env.example .env.local   # or create .env.local from the variables below
 npm run dev
 ```
 
-Open
+Open [http://localhost:3000](http://localhost:3000).
 
-```
-http://localhost:3000
-```
-
----
-
-## Environment Variables
-
-Create a `.env.local` file.
+### Environment
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-
-NEXT_PUBLIC_API_URL=
-
-SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
-Additional environment variables may be added as development progresses.
+(Some templates use `NEXT_PUBLIC_SUPABASE_ANON_KEY` — match whatever `lib/supabase/*` expects in this repo.)
 
----
+## Embed in Webflow (two options)
 
-## Planned Folder Structure
+### 1. Iframe
+
+Add an Embed element:
+
+```html
+<iframe
+  src="https://YOUR_DOMAIN/widget"
+  title="HealthyFarm Market Intelligence"
+  style="width:100%;min-height:920px;border:0;"
+  loading="lazy"
+></iframe>
+```
+
+### 2. Script + `#app` div
+
+In the page body:
+
+```html
+<div id="app"></div>
+```
+
+In the page footer (before `</body>`):
+
+```html
+<script src="https://YOUR_DOMAIN/embed.js" async></script>
+```
+
+Optional attributes on the div:
+
+```html
+<div id="app" data-height="960" data-src="https://YOUR_DOMAIN/widget"></div>
+```
+
+## Admin dashboard
+
+1. Sign up / sign in via `/auth/sign-up` or `/auth/login`
+2. Open `/dashboard` to review Supabase session status, mock API source, and schema notes
+3. Preview the public panel from the dashboard link
+
+## Supabase schema
+
+Run `supabase/schema.sql` in the Supabase SQL editor to create:
+
+| Table | Purpose |
+|-------|---------|
+| `egg_price_observations` | Optional raw analytics rows (auth read) |
+| `market_summaries` | Aggregated averages (public read) |
+| `market_time_series` | Trend buckets (public read) |
+| `market_comparisons` | Matched premiums (public read) |
+| `market_insights` | Farmer-facing explanations (public read) |
+
+## Project layout
 
 ```
 app/
+  page.tsx                 # HealthyFarm landing
+  widget/                  # Public embeddable market panel
+  dashboard/               # Auth-gated admin
+  api/market/              # Mock JSON endpoint
+  auth/                    # Login, sign-up, password flows
 components/
-hooks/
-lib/
-services/
-types/
-utils/
+  market/market-panel.tsx  # Shared market UI
+  site-header.tsx
+  site-footer.tsx
+data/mock/                 # Mock market intelligence payload
+supabase/schema.sql
 public/
-styles/
+  healthyfarmlogo.png
+  embed.js
+types/market.ts
 ```
 
----
+## Scripts
 
-## Planned Features
-
-- Authentication
-- Role Based Access
-- Dashboard
-- Charts & Analytics
-- Widget System
-- API Integration
-- Data Tables
-- Search & Filtering
-- Responsive UI
-- Webflow Embed Support
-
----
-
-## Backend Integration
-
-The frontend will consume APIs exposed by the FastAPI backend.
-
-Expected integration includes:
-
-- Authentication
-- Dashboard Metrics
-- Widgets
-- Reports
-- Filtering
-- Search
-- User Data
-- Business Logic
-
-The API contract will be implemented once the backend specification is finalized.
-
----
+```bash
+npm run dev      # development server
+npm run build    # production build
+npm run start    # run production build
+npm run lint     # ESLint
+```
 
 ## Deployment
 
-Frontend deployment will be handled through **Vercel**.
+Deploy the frontend on **Vercel**. Set the Supabase environment variables in the project settings. Point Webflow embeds at your production domain.
 
-The backend infrastructure (FastAPI, Cloud Run, Cloud Scheduler, PostgreSQL, etc.) will be managed separately.
+## Brand
 
----
-
-## Development Workflow
-
-1. Configure project
-2. Configure Supabase
-3. Database schema
-4. Authentication
-5. UI Components
-6. Dashboard pages
-7. API integration
-8. Testing
-9. Production deployment
-
----
-
-## Available Scripts
-
-```bash
-npm run dev
-```
-
-Runs the development server.
-
-```bash
-npm run build
-```
-
-Creates a production build.
-
-```bash
-npm run start
-```
-
-Runs the production build locally.
-
-```bash
-npm run lint
-```
-
-Runs ESLint.
-
----
-
-## Notes
-
-This repository currently contains the initial project setup only.
-
-Frontend development will continue in parallel with the FastAPI backend implementation. API integration will begin once the backend endpoints and API contract are finalized.
+- Site: [HealthyFarm Network](https://www.evergreenlabs.org/healthyfarm-network/home)
+- Organization: Evergreen Labs (`info@evergreenlabs.org`)

@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Evergreen Widget";
+export const alt = "HealthyFarm";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -28,17 +28,12 @@ export default function TwitterImage() {
             borderRadius: 9999,
             backgroundColor: "#3A855D",
             marginBottom: 32,
+            color: "white",
+            fontSize: 40,
+            fontWeight: 700,
           }}
         >
-          <div
-            style={{
-              width: 40,
-              height: 56,
-              borderRadius: "50% 50% 50% 0",
-              backgroundColor: "#F7F5F0",
-              transform: "rotate(-45deg)",
-            }}
-          />
+          HF
         </div>
         <div
           style={{
@@ -48,7 +43,7 @@ export default function TwitterImage() {
             letterSpacing: "-0.02em",
           }}
         >
-          Evergreen Widget
+          HealthyFarm
         </div>
         <div
           style={{
@@ -57,7 +52,7 @@ export default function TwitterImage() {
             marginTop: 16,
           }}
         >
-          Analytics dashboard and embedded widgets
+          Vietnam Laying Hen Welfare Network
         </div>
       </div>
     ),

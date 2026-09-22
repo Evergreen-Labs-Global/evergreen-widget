@@ -6,15 +6,15 @@ export function AuthLogo() {
     <Link
       href="/"
       className="mb-6 flex justify-center"
-      aria-label="Evergreen Widget home"
+      aria-label="HealthyFarm home"
     >
       <Image
-        src="/logo.svg"
-        alt="Evergreen"
+        src="/healthyfarmlogo.png"
+        alt="HealthyFarm"
         width={200}
-        height={28}
+        height={60}
         priority
-        className="h-7 w-auto"
+        className="h-12 w-auto"
       />
     </Link>
   );

@@ -9,8 +9,12 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Evergreen Widget",
-  description: "Analytics dashboard and embedded widgets for Evergreen.",
+  title: {
+    default: "HealthyFarm",
+    template: "%s | HealthyFarm",
+  },
+  description:
+    "Vietnam's Laying Hen Welfare Network — market intelligence, farmer tools, and admin dashboard.",
 };
 
 const openSans = Open_Sans({
@@ -39,7 +43,7 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
-          enableSystem
+          enableSystem={false}
           disableTransitionOnChange
         >
           {children}

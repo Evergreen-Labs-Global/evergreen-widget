@@ -7,16 +7,20 @@ import { hasEnvVars } from "@/lib/utils";
 
 export function SiteHeader() {
   return (
-    <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16 bg-card/50">
+    <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16 bg-white">
       <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
-        <Link href="/" className="flex items-center" aria-label="Evergreen Widget home">
+        <Link
+          href="/"
+          className="flex items-center gap-2"
+          aria-label="HealthyFarm home"
+        >
           <Image
-            src="/logo.svg"
-            alt="Evergreen"
+            src="/healthyfarmlogo.png"
+            alt="HealthyFarm"
             width={160}
-            height={22}
+            height={48}
             priority
-            className="h-5 w-auto"
+            className="h-9 w-auto"
           />
         </Link>
         {!hasEnvVars ? (
