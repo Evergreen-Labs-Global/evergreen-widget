@@ -53,6 +53,7 @@ type Dict = {
   confidenceHigh: string;
   confidenceModerate: string;
   confidenceLow: string;
+  confidenceLimited: string;
   footer: string;
   chartLabel: string;
   regionsTitle: string;
@@ -90,6 +91,7 @@ const en: Dict = {
   confidenceHigh: "high",
   confidenceModerate: "moderate",
   confidenceLow: "low",
+  confidenceLimited: "limited",
   footer: "HealthyFarm · Laying Hen Welfare Network · Prices in VND per egg",
   chartLabel: "Weekly egg price trends",
   regionsTitle: "Regional averages",
@@ -127,6 +129,7 @@ const vi: Dict = {
   confidenceHigh: "cao",
   confidenceModerate: "trung bình",
   confidenceLow: "thấp",
+  confidenceLimited: "hạn chế",
   footer:
     "HealthyFarm · Mạng lưới phúc lợi gà đẻ trứng · Giá tính bằng VND / quả",
   chartLabel: "Xu hướng giá trứng theo tuần",
@@ -162,6 +165,7 @@ export function labelConfidence(locale: Locale, value: string): string {
   if (key === "high") return t.confidenceHigh;
   if (key === "moderate") return t.confidenceModerate;
   if (key === "low") return t.confidenceLow;
+  if (key === "limited") return t.confidenceLimited;
   return value;
 }
 

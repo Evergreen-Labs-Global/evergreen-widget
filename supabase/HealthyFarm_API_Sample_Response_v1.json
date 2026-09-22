@@ -1,0 +1,452 @@
+{
+  "meta": {
+    "title": "HealthyFarm | Vietnam Egg Price Intelligence",
+    "generated_at": "2026-09-22T00:00:00Z",
+    "dataset_coverage": {
+      "start": "2010-01-05",
+      "end": "2026-09-13"
+    },
+    "selected_period": {
+      "start": "2026-06-16",
+      "end": "2026-09-13"
+    },
+    "latest_in_view": "2026-09-13",
+    "currency": "VND",
+    "unit": "per egg",
+    "policy_version": "2026-09-13-client-v2"
+  },
+  "applied_filters": {
+    "price_level": null,
+    "region": null,
+    "province": null,
+    "systems": [],
+    "brand": null,
+    "explicit_labels_only": false,
+    "include_unavailable": false,
+    "interval": "Weekly"
+  },
+  "retail": {
+    "summary_by_system": [
+      {
+        "system": "Cage-Free",
+        "average_price": 4467.81,
+        "observations": 38,
+        "days": 10
+      },
+      {
+        "system": "Caged",
+        "average_price": 5293.52,
+        "observations": 1386,
+        "days": 21
+      }
+    ],
+    "unadjusted_comparison": {
+      "baseline": "Caged",
+      "target": "Cage-Free",
+      "baseline_price": 5293.52,
+      "target_price": 4467.81,
+      "difference": -825.71,
+      "percent": -15.6
+    },
+    "time_series": {
+      "interval": "Weekly",
+      "series": [
+        {
+          "name": "Cage-Free",
+          "system": "Cage-Free",
+          "points": [
+            {
+              "date": "2026-08-31",
+              "price": 4800.0,
+              "observations": 9
+            },
+            {
+              "date": "2026-09-07",
+              "price": 4364.71,
+              "observations": 29
+            }
+          ]
+        },
+        {
+          "name": "Caged",
+          "system": "Caged",
+          "points": [
+            {
+              "date": "2026-08-24",
+              "price": 5213.89,
+              "observations": 416
+            },
+            {
+              "date": "2026-08-31",
+              "price": 5315.82,
+              "observations": 479
+            },
+            {
+              "date": "2026-09-07",
+              "price": 5339.21,
+              "observations": 491
+            }
+          ]
+        }
+      ]
+    },
+    "matched_housing_comparison": {
+      "baseline": "Caged",
+      "target": "Cage-Free",
+      "baseline_price": 3341.85,
+      "target_price": 3401.67,
+      "difference": 59.81,
+      "percent": 1.79,
+      "cells": 3,
+      "days": 3
+    },
+    "regional_summary": [
+      {
+        "region": "Central",
+        "system": "Caged",
+        "average_price": 5987.05,
+        "observations": 322,
+        "days": 20
+      },
+      {
+        "region": "North",
+        "system": "Caged",
+        "average_price": 5129.08,
+        "observations": 1041,
+        "days": 21
+      },
+      {
+        "region": "South",
+        "system": "Cage-Free",
+        "average_price": 4467.81,
+        "observations": 38,
+        "days": 10
+      },
+      {
+        "region": "South",
+        "system": "Caged",
+        "average_price": 3026.52,
+        "observations": 23,
+        "days": 8
+      }
+    ],
+    "brand_summary": [
+      {
+        "brand": "DABACO",
+        "system": "Caged",
+        "average_price": 5890.23,
+        "observations": 537,
+        "days": 21
+      },
+      {
+        "brand": "729 BA VÌ",
+        "system": "Caged",
+        "average_price": 6095.7,
+        "observations": 407,
+        "days": 20
+      },
+      {
+        "brand": "O’LALA",
+        "system": "Caged",
+        "average_price": 4066.94,
+        "observations": 304,
+        "days": 21
+      },
+      {
+        "brand": "BA HUÂN",
+        "system": "Caged",
+        "average_price": 3361.21,
+        "observations": 116,
+        "days": 21
+      },
+      {
+        "brand": "VFood",
+        "system": "Cage-Free",
+        "average_price": 4813.33,
+        "observations": 30,
+        "days": 10
+      },
+      {
+        "brand": "NO BRAND",
+        "system": "Caged",
+        "average_price": 2858.89,
+        "observations": 18,
+        "days": 7
+      },
+      {
+        "brand": "Happy Farm",
+        "system": "Cage-Free",
+        "average_price": 2950.0,
+        "observations": 4,
+        "days": 4
+      },
+      {
+        "brand": "Happy Egg",
+        "system": "Cage-Free",
+        "average_price": 3416.67,
+        "observations": 2,
+        "days": 2
+      },
+      {
+        "brand": null,
+        "system": "Caged",
+        "average_price": 3100.0,
+        "observations": 1,
+        "days": 1
+      },
+      {
+        "brand": "HAPPY EGG",
+        "system": "Cage-Free",
+        "average_price": 3416.67,
+        "observations": 1,
+        "days": 1
+      },
+      {
+        "brand": "Happy Price",
+        "system": "Caged",
+        "average_price": 2633.33,
+        "observations": 1,
+        "days": 1
+      },
+      {
+        "brand": "NO BRAND",
+        "system": "Cage-Free",
+        "average_price": 3326.67,
+        "observations": 1,
+        "days": 1
+      },
+      {
+        "brand": "VFOOD",
+        "system": "Caged",
+        "average_price": 3600.0,
+        "observations": 1,
+        "days": 1
+      },
+      {
+        "brand": "Vĩnh Thành Đạt",
+        "system": "Caged",
+        "average_price": 5766.67,
+        "observations": 1,
+        "days": 1
+      }
+    ],
+    "insights": [
+      {
+        "system": "Caged",
+        "price_level": "Retail",
+        "headline": "Caged retail price signal: Little short-term change",
+        "observation": "The latest seven-day average for recurring products is 0.5% higher than the preceding seven days (VND 5,415 to VND 5,444 per egg). There is not yet enough comparable history to establish a sustained trend.",
+        "planning_note": "Check current buyer quotations, orders and your own costs before adjusting near-term deliveries. Do not use this early signal alone to expand flock capacity or invest in a housing conversion. A retail movement may not translate into a change in your farmgate price.",
+        "confidence": "Low",
+        "evidence_note": "71 recurring product/location series; 7 earlier and 7 recent observed dates. Comparison: 31 Aug to 06 Sep 2026, versus 07 Sep to 13 Sep 2026. Low confidence is a coverage rating, not a probability of future prices.",
+        "change_percent": 0.54,
+        "baseline_price": 5415.49,
+        "recent_price": 5444.46,
+        "matched_series": 71,
+        "previous_dates": 7,
+        "recent_dates": 7,
+        "sustained": false
+      },
+      {
+        "system": "Cage-Free",
+        "price_level": "Retail",
+        "headline": "Cage-Free retail price signal: More history needed",
+        "observation": "There is not yet enough history in both 28-day comparison periods. Select at least 56 days; a longer collection history may still be needed.",
+        "planning_note": "Monitor new prices and check buyer demand before changing output or committing to new housing investment.",
+        "confidence": "Limited",
+        "evidence_note": "No forecast is made. Repeated observations do not guarantee independent evidence.",
+        "change_percent": null,
+        "baseline_price": null,
+        "recent_price": null,
+        "matched_series": 0,
+        "previous_dates": 0,
+        "recent_dates": 10,
+        "sustained": false
+      }
+    ]
+  },
+  "supply_chain": {
+    "summary_by_level": [
+      {
+        "price_level": "Farmgate",
+        "average_price": 1941.35,
+        "observations": 644,
+        "days": 41
+      },
+      {
+        "price_level": "Retail",
+        "average_price": 5271.48,
+        "observations": 1424,
+        "days": 21
+      }
+    ],
+    "time_series": {
+      "interval": "Weekly",
+      "series": [
+        {
+          "name": "Farmgate",
+          "price_level": "Farmgate",
+          "points": [
+            {
+              "date": "2026-06-15",
+              "price": 1453.33,
+              "observations": 3
+            },
+            {
+              "date": "2026-06-22",
+              "price": 1453.33,
+              "observations": 3
+            },
+            {
+              "date": "2026-06-29",
+              "price": 1800.0,
+              "observations": 1
+            },
+            {
+              "date": "2026-07-06",
+              "price": 1859.09,
+              "observations": 11
+            },
+            {
+              "date": "2026-07-20",
+              "price": 1902.86,
+              "observations": 7
+            },
+            {
+              "date": "2026-07-27",
+              "price": 2059.11,
+              "observations": 45
+            },
+            {
+              "date": "2026-08-03",
+              "price": 1928.0,
+              "observations": 10
+            },
+            {
+              "date": "2026-08-10",
+              "price": 2086.9,
+              "observations": 29
+            },
+            {
+              "date": "2026-08-17",
+              "price": 1924.29,
+              "observations": 7
+            },
+            {
+              "date": "2026-08-24",
+              "price": 1931.52,
+              "observations": 178
+            },
+            {
+              "date": "2026-08-31",
+              "price": 1932.0,
+              "observations": 175
+            },
+            {
+              "date": "2026-09-07",
+              "price": 1932.0,
+              "observations": 175
+            }
+          ]
+        },
+        {
+          "name": "Retail",
+          "price_level": "Retail",
+          "points": [
+            {
+              "date": "2026-08-24",
+              "price": 5213.89,
+              "observations": 416
+            },
+            {
+              "date": "2026-08-31",
+              "price": 5306.31,
+              "observations": 488
+            },
+            {
+              "date": "2026-09-07",
+              "price": 5284.87,
+              "observations": 520
+            }
+          ]
+        }
+      ]
+    },
+    "spreads_by_system": {
+      "Caged": {
+        "baseline": "Farmgate",
+        "target": "Retail",
+        "baseline_price": 1922.24,
+        "target_price": 5151.41,
+        "difference": 3229.16,
+        "percent": 167.99,
+        "cells": 49,
+        "days": 21
+      },
+      "Cage-Free": null
+    },
+    "farmgate_insights": [
+      {
+        "system": "Caged",
+        "price_level": "Farmgate",
+        "headline": "Caged farmgate price signal: Little short-term change",
+        "observation": "The latest seven-day average for recurring products is unchanged from the preceding seven days (VND 1,932 to VND 1,932 per egg). There is not yet enough comparable history to establish a sustained trend.",
+        "planning_note": "Check current buyer quotations, orders and your own costs before adjusting near-term deliveries. Do not use this early signal alone to expand flock capacity or invest in a housing conversion.",
+        "confidence": "Low",
+        "evidence_note": "25 recurring product/location series; 7 earlier and 7 recent observed dates. Comparison: 31 Aug to 06 Sep 2026, versus 07 Sep to 13 Sep 2026. Low confidence is a coverage rating, not a probability of future prices.",
+        "change_percent": 0.0,
+        "baseline_price": 1932.0,
+        "recent_price": 1932.0,
+        "matched_series": 25,
+        "previous_dates": 7,
+        "recent_dates": 7,
+        "sustained": false
+      },
+      {
+        "system": "Cage-Free",
+        "price_level": "Farmgate",
+        "headline": "Cage-Free farmgate price signal: More history needed",
+        "observation": "No recent observations are available in the selected filters. Widen the date range or wait for new data.",
+        "planning_note": "Monitor new prices and check buyer demand before changing output or committing to new housing investment.",
+        "confidence": "Limited",
+        "evidence_note": "No forecast is made. Repeated observations do not guarantee independent evidence.",
+        "change_percent": null,
+        "baseline_price": null,
+        "recent_price": null,
+        "matched_series": 0,
+        "previous_dates": 0,
+        "recent_dates": 0,
+        "sustained": false
+      }
+    ]
+  },
+  "coverage": {
+    "price_observations": 2068,
+    "observed_dates": 41,
+    "brands": 12,
+    "unclassified_observations": 119,
+    "matrix": [
+      {
+        "price_level": "Farmgate",
+        "system": "Caged",
+        "average_price": 1932.0,
+        "observations": 525,
+        "days": 21
+      },
+      {
+        "price_level": "Retail",
+        "system": "Cage-Free",
+        "average_price": 4467.81,
+        "observations": 38,
+        "days": 10
+      },
+      {
+        "price_level": "Retail",
+        "system": "Caged",
+        "average_price": 5293.52,
+        "observations": 1386,
+        "days": 21
+      }
+    ]
+  }
+}

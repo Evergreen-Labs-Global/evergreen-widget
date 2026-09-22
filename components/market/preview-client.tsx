@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { MarketIntelligence } from "@/types/market";
+import type { MarketResponse } from "@/types/market";
 import type { Locale } from "@/lib/market/i18n";
 import { MarketPanel } from "@/components/market/market-panel";
 import {
@@ -11,7 +11,7 @@ import {
 } from "@/components/market/widget-variants";
 import Link from "next/link";
 
-export function PreviewClient({ data }: { data: MarketIntelligence }) {
+export function PreviewClient({ data }: { data: MarketResponse }) {
   const [locale, setLocale] = useState<Locale>("en");
   const [active, setActive] = useState<WidgetVariantId>("full");
 
