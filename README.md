@@ -40,20 +40,24 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 
 ## Embed in Webflow (two options)
 
-### 1. Iframe
+Language follows the host page automatically:
+- URL contains `vi-vn` (e.g. [/vi-vn/healthyfarm-network/home](https://www.evergreenlabs.org/vi-vn/healthyfarm-network/home)) → Vietnamese
+- Otherwise English (e.g. [/healthyfarm-network/home](https://www.evergreenlabs.org/healthyfarm-network/home))
 
-Add an Embed element:
+### 1. Iframe
 
 ```html
 <iframe
-  src="https://YOUR_DOMAIN/widget"
+  src="https://YOUR_DOMAIN/widget?lang=en"
   title="HealthyFarm Market Intelligence"
   style="width:100%;min-height:920px;border:0;"
   loading="lazy"
 ></iframe>
 ```
 
-### 2. Script + `#app` div
+Vietnamese page: use `?lang=vi`.
+
+### 2. Script + `#app` div (recommended for prediction page body)
 
 In the page body:
 
@@ -67,10 +71,10 @@ In the page footer (before `</body>`):
 <script src="https://YOUR_DOMAIN/embed.js" async></script>
 ```
 
-Optional attributes on the div:
+The script detects `vi-vn` in the Webflow page URL and loads the matching language. Optional overrides:
 
 ```html
-<div id="app" data-height="960" data-src="https://YOUR_DOMAIN/widget"></div>
+<div id="app" data-lang="vi" data-height="960"></div>
 ```
 
 ## Admin dashboard
