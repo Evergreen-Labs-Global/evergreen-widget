@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import {
   Card,
   CardContent,
@@ -10,10 +11,13 @@ import { getMarketIntelligence, formatVnd } from "@/lib/market/get-market-data";
 import { createClient } from "@/lib/supabase/server";
 import { hasEnvVars } from "@/lib/utils";
 import Link from "next/link";
+import { connection } from "next/server";
 
-export default async function DashboardPage() {
+async function DashboardContent() {
+  await connection();
+
   const data = await getMarketIntelligence();
-  const supabaseConfigured = hasEnvVars;
+  const supabaseConfigured = Boolean(hasEnvVars);
 
   let sessionEmail: string | null = null;
   let supabaseReachable = false;
@@ -80,7 +84,7 @@ export default async function DashboardPage() {
               <span className="font-medium capitalize">{data.meta.source}</span>
             </p>
             <p className="text-muted-foreground">
-              Generated {new Date(data.meta.generated_at).toLocaleString()}
+              Generated {data.meta.generated_at}
             </p>
             <p className="text-muted-foreground">
               Endpoint: <code className="text-xs">GET /api/market</code>
@@ -128,7 +132,7 @@ export default async function DashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-xs text-muted-foreground">
-                {row.observations.toLocaleString()} observations
+                {row.observations.toLocaleString("en-US")} observations
               </CardContent>
             </Card>
           ))}
@@ -144,10 +148,24 @@ export default async function DashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground space-y-1">
-          <p>Tables: egg_price_observations, market_summaries, market_time_series,</p>
-          <p>market_comparisons, market_insights — with public read on aggregates.</p>
+          <p>
+            Tables: egg_price_observations, market_summaries,
+            market_time_series,
+          </p>
+          <p>
+            market_comparisons, market_insights — with public read on
+            aggregates.
+          </p>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<p className="text-muted-foreground">Loading dashboard…</p>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
