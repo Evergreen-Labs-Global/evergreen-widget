@@ -4,9 +4,13 @@
 --   GET /api/v1/options                 -> hf_filter_options
 --   GET /api/v1/market                  -> hf_market_snapshots.response
 --
--- Private source / store / provenance fields stay out of these tables.
--- The API may keep raw observations in a private store and write only
--- dashboard-ready aggregates here.
+-- Two layers:
+--   1. hf_analytics_observations  PRIVATE rows FastAPI must query
+--      (full analytics dataset, including source/store/provenance).
+--      No anon or authenticated access. Service role only.
+--   2. hf_market_snapshots and hf_* aggregate tables
+--      PUBLIC dashboard output the website may read.
+-- FastAPI reads layer 1, calculates, then writes layer 2.
 --
 -- If an earlier draft was applied, drop those tables first:
 --   drop table if exists public.market_insights, public.market_comparisons,
@@ -184,32 +188,43 @@ alter table public.hf_supply_level_summary enable row level security;
 alter table public.hf_coverage enable row level security;
 alter table public.hf_coverage_matrix enable row level security;
 
+drop policy if exists "Public can read latest market snapshots" on public.hf_market_snapshots;
 create policy "Public can read latest market snapshots"
   on public.hf_market_snapshots for select
   to anon, authenticated
   using (is_latest = true);
 
+drop policy if exists "Public can read filter options" on public.hf_filter_options;
 create policy "Public can read filter options"
   on public.hf_filter_options for select
   to anon, authenticated
   using (true);
 
+drop policy if exists "Public can read retail system summary" on public.hf_retail_system_summary;
 create policy "Public can read retail system summary"
   on public.hf_retail_system_summary for select to anon, authenticated using (true);
+drop policy if exists "Public can read series points" on public.hf_series_points;
 create policy "Public can read series points"
   on public.hf_series_points for select to anon, authenticated using (true);
+drop policy if exists "Public can read comparisons" on public.hf_comparisons;
 create policy "Public can read comparisons"
   on public.hf_comparisons for select to anon, authenticated using (true);
+drop policy if exists "Public can read retail regions" on public.hf_retail_regions;
 create policy "Public can read retail regions"
   on public.hf_retail_regions for select to anon, authenticated using (true);
+drop policy if exists "Public can read retail brands" on public.hf_retail_brands;
 create policy "Public can read retail brands"
   on public.hf_retail_brands for select to anon, authenticated using (true);
+drop policy if exists "Public can read insights" on public.hf_insights;
 create policy "Public can read insights"
   on public.hf_insights for select to anon, authenticated using (true);
+drop policy if exists "Public can read supply summaries" on public.hf_supply_level_summary;
 create policy "Public can read supply summaries"
   on public.hf_supply_level_summary for select to anon, authenticated using (true);
+drop policy if exists "Public can read coverage" on public.hf_coverage;
 create policy "Public can read coverage"
   on public.hf_coverage for select to anon, authenticated using (true);
+drop policy if exists "Public can read coverage matrix" on public.hf_coverage_matrix;
 create policy "Public can read coverage matrix"
   on public.hf_coverage_matrix for select to anon, authenticated using (true);
 
@@ -224,3 +239,115 @@ grant select on public.hf_insights to anon, authenticated;
 grant select on public.hf_supply_level_summary to anon, authenticated;
 grant select on public.hf_coverage to anon, authenticated;
 grant select on public.hf_coverage_matrix to anon, authenticated;
+
+-- ---------------------------------------------------------------------------
+-- PRIVATE observation layer
+-- FastAPI queries: public.hf_analytics_observations
+-- One row = one analytics CSV record (84 columns).
+-- Source, store, URL, and provenance columns are in this table on purpose
+-- and are revoked from anon and authenticated.
+-- ---------------------------------------------------------------------------
+create table if not exists public.hf_analytics_observations (
+  record_id text primary key,
+  observed_on date,
+  scrape_timestamp text,
+  source text,
+  source_type text,
+  market_level text,
+  country text,
+  region text,
+  region_label text,
+  region_raw text,
+  province text,
+  city text,
+  location text,
+  store_name text,
+  store_address text,
+  store_code text,
+  store_group_code text,
+  species text,
+  egg_type_raw text,
+  egg_type_normalized text,
+  egg_type_label text,
+  shell_color text,
+  production_system text,
+  brand text,
+  product_name text,
+  item_no text,
+  pack_size text,
+  egg_count numeric,
+  price_raw text,
+  buying_price_vnd numeric,
+  selling_price_vnd numeric,
+  pack_price_vnd numeric,
+  price_per_egg_vnd numeric,
+  unit_raw text,
+  unit_normalized text,
+  quantity_sold numeric,
+  stock_quantity numeric,
+  feed_cost_vnd numeric,
+  buyer_type text,
+  weather_condition text,
+  event_impact text,
+  availability text,
+  source_url text,
+  quality_flag text,
+  notes text,
+  date_clean date,
+  scrape_timestamp_clean text,
+  price_level text,
+  region_normalized text,
+  province_normalized text,
+  city_normalized text,
+  data_origin text,
+  housing_system text,
+  housing_label_status text,
+  housing_label_basis text,
+  housing_dashboard_eligible text,
+  egg_count_clean numeric,
+  price_per_egg_vnd_clean numeric,
+  duplicate_flag text,
+  quality_status text,
+  preprocessing_issues text,
+  analytics_eligible text,
+  analytics_exclusion_reason text,
+  year integer,
+  month_number integer,
+  month_label text,
+  year_month text,
+  quarter text,
+  week integer,
+  day_of_week text,
+  analytics_price_available text,
+  production_system_clean text,
+  production_system_dashboard_eligible text,
+  observation_count integer,
+  housing_comparison_count integer,
+  market_price_vnd_clean numeric,
+  farmgate_price_vnd_clean numeric,
+  retail_price_vnd_clean numeric,
+  caged_price_vnd_clean numeric,
+  cage_free_price_vnd_clean numeric,
+  free_range_price_vnd_clean numeric,
+  caged_retail_price_vnd_clean numeric,
+  cage_free_retail_price_vnd_clean numeric,
+  free_range_retail_price_vnd_clean numeric,
+  loaded_at timestamptz not null default now()
+);
+
+create index if not exists hf_analytics_date_clean_idx
+  on public.hf_analytics_observations (date_clean);
+create index if not exists hf_analytics_level_system_idx
+  on public.hf_analytics_observations (price_level, housing_system);
+create index if not exists hf_analytics_region_idx
+  on public.hf_analytics_observations (region_normalized);
+create index if not exists hf_analytics_eligible_idx
+  on public.hf_analytics_observations (analytics_eligible);
+
+alter table public.hf_analytics_observations enable row level security;
+
+revoke all on table public.hf_analytics_observations from anon, authenticated;
+grant select, insert, update, delete on table public.hf_analytics_observations to service_role;
+
+comment on table public.hf_analytics_observations is
+  'Private HealthyFarm analytics rows. FastAPI service role only. Do not expose to the public market panel.';

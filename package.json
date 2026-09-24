@@ -4,7 +4,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "import:analytics": "node scripts/import-analytics.mjs"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.1",
