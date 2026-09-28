@@ -11,7 +11,7 @@ export default function DashboardLayout({
     <main className="min-h-screen flex flex-col items-center">
       <div className="flex-1 w-full flex flex-col items-center">
         <SiteHeader />
-        <div className="flex-1 flex flex-col gap-8 max-w-5xl w-full p-5 py-10">
+        <div className="flex-1 flex flex-col gap-8 max-w-6xl w-full p-5 py-10">
           <Suspense
             fallback={<p className="text-muted-foreground">Loading dashboard…</p>}
           >

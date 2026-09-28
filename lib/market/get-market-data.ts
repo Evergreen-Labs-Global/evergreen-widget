@@ -1,5 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
 import type { MarketResponse } from "@/types/market";
+
+const MARKET_API_TIMEOUT_MS = 60_000;
 
 function isMarketResponse(value: unknown): value is MarketResponse {
   if (!value || typeof value !== "object") return false;
@@ -16,33 +17,38 @@ function isMarketResponse(value: unknown): value is MarketResponse {
   );
 }
 
+export function marketApiBaseUrl(): string {
+  const url = process.env.HF_MARKET_API_URL?.trim().replace(/\/$/, "");
+  if (!url) {
+    throw new Error("HF_MARKET_API_URL is not configured.");
+  }
+  return url;
+}
+
 export async function getMarketIntelligence(): Promise<MarketResponse> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const endpoint = `${marketApiBaseUrl()}/api/v1/market`;
 
-  if (!url || !key) {
-    throw new Error("Supabase environment variables are not configured.");
+  let response: Response;
+  try {
+    response = await fetch(endpoint, {
+      signal: AbortSignal.timeout(MARKET_API_TIMEOUT_MS),
+      next: { revalidate: 300 },
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "request failed";
+    throw new Error(`Could not reach the market API: ${message}`);
   }
 
-  const supabase = createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-
-  const { data, error } = await supabase
-    .from("hf_market_snapshots")
-    .select("response")
-    .eq("is_latest", true)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error(`Could not read the latest market snapshot: ${error.message}`);
+  if (!response.ok) {
+    throw new Error(`Market API returned ${response.status}.`);
   }
 
-  if (!isMarketResponse(data?.response)) {
-    throw new Error("No latest market snapshot is published in Supabase.");
+  const body: unknown = await response.json();
+  if (!isMarketResponse(body)) {
+    throw new Error("Market API returned an unexpected response.");
   }
 
-  return data.response;
+  return body;
 }
 
 export function formatVnd(value: number | null | undefined): string {
