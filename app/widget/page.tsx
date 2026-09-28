@@ -39,16 +39,26 @@ async function WidgetBody({
   searchParams: Promise<{ lang?: string }>;
 }) {
   const params = await searchParams;
-  const [data, locale] = await Promise.all([
-    getMarketIntelligence(),
-    resolveWidgetLocale(params.lang),
-  ]);
+  const locale = await resolveWidgetLocale(params.lang);
 
-  return (
-    <main className="min-h-screen bg-transparent p-0 md:p-1">
-      <MarketPanel data={data} locale={locale} />
-    </main>
-  );
+  try {
+    const data = await getMarketIntelligence();
+    return (
+      <main className="min-h-screen bg-transparent p-0 md:p-1">
+        <MarketPanel data={data} locale={locale} />
+      </main>
+    );
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Market data is temporarily unavailable.";
+    return (
+      <main className="min-h-[240px] flex items-center justify-center p-6 text-sm text-muted-foreground">
+        {message}
+      </main>
+    );
+  }
 }
 
 export default function WidgetPage({

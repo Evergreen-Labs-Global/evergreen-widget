@@ -2,6 +2,7 @@ import { PreviewClient } from "@/components/market/preview-client";
 import { getMarketIntelligence } from "@/lib/market/get-market-data";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Widget UI Preview | HealthyFarm",
@@ -10,9 +11,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function PreviewPage() {
+async function PreviewBody() {
   const data = await getMarketIntelligence();
+  return <PreviewClient data={data} />;
+}
 
+export default function PreviewPage() {
   return (
     <main className="min-h-screen bg-[#F7F5F0]">
       <div className="border-b bg-white">
@@ -30,7 +34,15 @@ export default async function PreviewPage() {
           </div>
         </div>
       </div>
-      <PreviewClient data={data} />
+      <Suspense
+        fallback={
+          <p className="mx-auto max-w-5xl px-4 py-12 text-sm text-muted-foreground">
+            Loading preview…
+          </p>
+        }
+      >
+        <PreviewBody />
+      </Suspense>
     </main>
   );
 }

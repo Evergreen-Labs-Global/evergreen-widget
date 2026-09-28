@@ -46,8 +46,8 @@ async function DashboardContent() {
         </p>
         <h1 className="font-serif text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground mt-2 max-w-2xl">
-          Review the v1 market contract sample, Supabase readiness, and the public
-          panel before live API URLs are connected.
+          Review the latest published market snapshot, Supabase status, and the
+          public panel.
         </p>
       </div>
 
@@ -81,8 +81,8 @@ async function DashboardContent() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="font-serif text-lg">Market contract</CardTitle>
-            <CardDescription>Sample response, not live yet</CardDescription>
+            <CardTitle className="font-serif text-lg">Market snapshot</CardTitle>
+            <CardDescription>Latest row in hf_market_snapshots</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <p>
@@ -92,14 +92,11 @@ async function DashboardContent() {
               Generated {data.meta.generated_at}
             </p>
             <p className="text-muted-foreground text-xs">
-              Planned: GET /health · GET /api/v1/options · GET /api/v1/market
-            </p>
-            <p className="text-muted-foreground text-xs">
-              Local mock: <code>GET /api/market</code>
+              Source: <code>hf_market_snapshots</code> where is_latest
             </p>
             <Button asChild size="sm" variant="outline">
               <Link href="/api/market" target="_blank">
-                Open sample JSON
+                Open snapshot JSON
               </Link>
             </Button>
           </CardContent>
@@ -206,7 +203,7 @@ async function DashboardContent() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-serif text-lg">Insights in sample</CardTitle>
+          <CardTitle className="font-serif text-lg">Insights in snapshot</CardTitle>
           <CardDescription>
             {data.retail.insights.length + data.supply_chain.farmgate_insights.length} signals
           </CardDescription>
@@ -228,7 +225,7 @@ async function DashboardContent() {
       <Card>
         <CardHeader>
           <CardTitle className="font-serif text-lg">Applied filters</CardTitle>
-          <CardDescription>Empty means the full default view in the sample</CardDescription>
+          <CardDescription>Filters stored on the latest snapshot</CardDescription>
         </CardHeader>
         <CardContent>
           <pre className="text-xs overflow-auto rounded-md bg-muted/50 p-3">
