@@ -10,11 +10,14 @@
  *   - Override: <div id="app" data-lang="vi"></div> or data-lang="en"
  *
  * Optional:
- *   <div id="app" data-src="https://YOUR_DOMAIN/widget" data-height="920"></div>
+ *   <div id="app" data-src="https://YOUR_DOMAIN/widget" data-height="860"></div>
+ *
+ * The iframe uses a fixed height. Filters stay put; only the results pane scrolls inside.
  */
 (function () {
   var TARGET_ID = "app";
   var DEFAULT_PATH = "/widget";
+  var DEFAULT_HEIGHT = "860";
 
   function scriptOrigin() {
     var current = document.currentScript;
@@ -69,7 +72,7 @@
     var lang = detectLang(el);
     var base = el.getAttribute("data-src") || origin + DEFAULT_PATH;
     var src = withLang(base, lang);
-    var height = el.getAttribute("data-height") || "920";
+    var height = el.getAttribute("data-height") || DEFAULT_HEIGHT;
 
     var iframe = document.createElement("iframe");
     iframe.src = src;
@@ -80,26 +83,17 @@
     iframe.style.width = "100%";
     iframe.style.border = "0";
     iframe.style.display = "block";
+    iframe.style.height = height + "px";
     iframe.style.minHeight = height + "px";
-    iframe.style.background = "transparent";
+    iframe.style.background = "#ffffff";
     iframe.setAttribute("loading", "lazy");
     iframe.setAttribute("referrerpolicy", "no-referrer-when-downgrade");
     iframe.setAttribute("allow", "clipboard-write; fullscreen");
-    iframe.setAttribute("scrolling", "no");
 
     el.innerHTML = "";
     el.appendChild(iframe);
     el.setAttribute("data-hf-mounted", "1");
     el.setAttribute("data-hf-lang", lang);
-
-    window.addEventListener("message", function (event) {
-      var data = event.data;
-      if (!data || data.source !== "healthyfarm-market") return;
-      if (data.type === "resize" && typeof data.height === "number") {
-        iframe.style.height = Math.max(data.height, 400) + "px";
-        iframe.style.minHeight = "0";
-      }
-    });
   }
 
   if (document.readyState === "loading") {

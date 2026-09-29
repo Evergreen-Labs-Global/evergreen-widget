@@ -44,8 +44,8 @@ async function WidgetBody({
   try {
     const data = await getMarketIntelligence();
     return (
-      <main className="min-h-screen bg-transparent p-0 md:p-1">
-        <MarketPanel data={data} locale={locale} />
+      <main className="h-dvh overflow-hidden bg-white">
+        <MarketPanel data={data} locale={locale} framed />
       </main>
     );
   } catch (error) {

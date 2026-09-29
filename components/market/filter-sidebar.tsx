@@ -32,15 +32,17 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-extrabold text-[#31584F]">{label}</span>
+      <span className="mb-1.5 block text-xs font-extrabold text-[#31584F]">{label}</span>
       {children}
-      {hint ? <span className="mt-1 block text-[11px] leading-snug text-[#687587]">{hint}</span> : null}
+      {hint ? (
+        <span className="mt-1.5 block text-[11px] leading-snug text-[#687587]">{hint}</span>
+      ) : null}
     </label>
   );
 }
 
 const controlClass =
-  "w-full rounded-lg border border-[#d5e4de] bg-white px-2.5 py-2 text-sm text-[#24304A] outline-none focus:border-[#0E9E8B]";
+  "min-h-11 w-full rounded-xl border border-[#d5e4de] bg-white px-3 py-2.5 text-sm text-[#24304A] outline-none focus:border-[#0E9E8B]";
 
 export function FilterSidebar({
   locale,
@@ -49,6 +51,7 @@ export function FilterSidebar({
   filters,
   onChange,
   onReset,
+  onClose,
 }: {
   locale: Locale;
   bounds: { start: string; end: string };
@@ -56,10 +59,15 @@ export function FilterSidebar({
   filters: PanelFilters;
   onChange: (next: PanelFilters) => void;
   onReset: () => void;
+  onClose?: () => void;
 }) {
   const vi = locale === "vi";
-  const years = [];
-  for (let year = Number(bounds.start.slice(0, 4)); year <= Number(bounds.end.slice(0, 4)); year += 1) {
+  const years: number[] = [];
+  for (
+    let year = Number(bounds.start.slice(0, 4));
+    year <= Number(bounds.end.slice(0, 4));
+    year += 1
+  ) {
     years.push(year);
   }
   const endYears = years.filter((year) => year >= filters.startYear);
@@ -69,17 +77,28 @@ export function FilterSidebar({
   const brands = options?.brands ?? [];
 
   return (
-    <aside className="w-full shrink-0 border-[#e0e9e6] bg-white lg:w-[280px] lg:border-r">
-      <div className="space-y-4 p-4 lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto">
-        <div>
-          <h2 className="text-base font-extrabold text-[#192E6D]">
-            {vi ? "Khám phá giá trứng" : "Explore egg prices"}
-          </h2>
-          <p className="mt-1 text-xs leading-relaxed text-[#687587]">
-            {vi
-              ? "Chọn kỳ, địa điểm và hệ thống chăn nuôi. Giá tính bằng VND mỗi quả."
-              : "Choose a period, location and production system. Prices are VND per egg."}
-          </p>
+    <aside className="flex h-full w-full shrink-0 flex-col bg-white">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-base font-extrabold text-[#192E6D]">
+              {vi ? "Khám phá giá trứng" : "Explore egg prices"}
+            </h2>
+            <p className="mt-1 text-xs leading-relaxed text-[#687587]">
+              {vi
+                ? "Chọn kỳ, địa điểm và hệ thống chăn nuôi. Giá tính bằng VND mỗi quả."
+                : "Choose a period, location and production system. Prices are VND per egg."}
+            </p>
+          </div>
+          {onClose ? (
+            <button
+              type="button"
+              onClick={onClose}
+              className="min-h-10 shrink-0 rounded-full border border-[#d5e4de] px-3 text-sm font-semibold text-[#192E6D]"
+            >
+              {vi ? "Đóng" : "Close"}
+            </button>
+          ) : null}
         </div>
 
         <Field
@@ -131,7 +150,9 @@ export function FilterSidebar({
               <select
                 className={controlClass}
                 value={filters.endYear}
-                onChange={(event) => onChange({ ...filters, endYear: Number(event.target.value) })}
+                onChange={(event) =>
+                  onChange({ ...filters, endYear: Number(event.target.value) })
+                }
               >
                 {endYears.map((year) => (
                   <option key={year} value={year}>
@@ -152,7 +173,9 @@ export function FilterSidebar({
                 min={bounds.start}
                 max={bounds.end}
                 value={filters.startDate}
-                onChange={(event) => onChange({ ...filters, startDate: event.target.value })}
+                onChange={(event) =>
+                  onChange({ ...filters, startDate: event.target.value })
+                }
               />
             </Field>
             <Field label={vi ? "Ngày kết thúc" : "End date"}>
@@ -162,14 +185,16 @@ export function FilterSidebar({
                 min={bounds.start}
                 max={bounds.end}
                 value={filters.endDate}
-                onChange={(event) => onChange({ ...filters, endDate: event.target.value })}
+                onChange={(event) =>
+                  onChange({ ...filters, endDate: event.target.value })
+                }
               />
             </Field>
           </div>
         ) : null}
 
         {"error" in period ? (
-          <p className="rounded-lg bg-[#FFF8E3] px-3 py-2 text-xs text-[#69541B]">
+          <p className="rounded-xl bg-[#FFF8E3] px-3 py-2 text-xs text-[#69541B]">
             {vi
               ? "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc."
               : "Start date must be on or before the end date."}
@@ -177,7 +202,8 @@ export function FilterSidebar({
         ) : (
           <p className="text-[11px] leading-snug text-[#687587]">
             {vi ? "Kỳ đã chọn: " : "Selected period: "}
-            {formatDisplayDate(period.start, locale)} – {formatDisplayDate(period.end, locale)}
+            {formatDisplayDate(period.start, locale)} –{" "}
+            {formatDisplayDate(period.end, locale)}
           </p>
         )}
 
@@ -203,7 +229,9 @@ export function FilterSidebar({
             className={controlClass}
             value={filters.region}
             disabled={!options}
-            onChange={(event) => onChange({ ...filters, region: event.target.value, province: "" })}
+            onChange={(event) =>
+              onChange({ ...filters, region: event.target.value, province: "" })
+            }
           >
             <option value="">{vi ? "Tất cả" : "All"}</option>
             {regions.map((region) => (
@@ -219,7 +247,9 @@ export function FilterSidebar({
             className={controlClass}
             value={filters.province}
             disabled={!options}
-            onChange={(event) => onChange({ ...filters, province: event.target.value })}
+            onChange={(event) =>
+              onChange({ ...filters, province: event.target.value })
+            }
           >
             <option value="">{vi ? "Tất cả" : "All"}</option>
             {provinces.map((province) => (
@@ -231,17 +261,20 @@ export function FilterSidebar({
         </Field>
 
         <fieldset>
-          <legend className="mb-1 text-xs font-extrabold text-[#31584F]">
+          <legend className="mb-1.5 text-xs font-extrabold text-[#31584F]">
             {vi ? "Hệ thống chăn nuôi" : "Production system"}
           </legend>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {(["Caged", "Cage-Free"] as const).map((system) => {
               const checked = system === "Caged" ? filters.caged : filters.cageFree;
               return (
-                <label key={system} className="flex items-center gap-2 text-sm text-[#24304A]">
+                <label
+                  key={system}
+                  className="flex min-h-11 items-center gap-2.5 rounded-xl border border-[#e8f0ec] px-3 text-sm text-[#24304A]"
+                >
                   <input
                     type="checkbox"
-                    className="accent-[#0E9E8B]"
+                    className="size-4 accent-[#0E9E8B]"
                     checked={checked}
                     onChange={(event) =>
                       onChange({
@@ -257,14 +290,14 @@ export function FilterSidebar({
               );
             })}
           </div>
-          <p className="mt-1 text-[11px] leading-snug text-[#687587]">
+          <p className="mt-1.5 text-[11px] leading-snug text-[#687587]">
             {vi
               ? "Quan sát chưa phân loại không vào so sánh hệ thống chăn nuôi."
               : "Unclassified observations are not used in production-system comparisons."}
           </p>
         </fieldset>
 
-        <details className="rounded-lg border border-[#e0e9e6] px-3 py-2">
+        <details className="rounded-xl border border-[#e0e9e6] px-3 py-2.5" open>
           <summary className="cursor-pointer text-xs font-extrabold text-[#31584F]">
             {vi ? "Thương hiệu và bộ lọc dữ liệu" : "Brand & data filters"}
           </summary>
@@ -274,7 +307,9 @@ export function FilterSidebar({
                 className={controlClass}
                 value={filters.brand}
                 disabled={!options}
-                onChange={(event) => onChange({ ...filters, brand: event.target.value })}
+                onChange={(event) =>
+                  onChange({ ...filters, brand: event.target.value })
+                }
               >
                 <option value="">{vi ? "Tất cả" : "All"}</option>
                 {brands.map((brand) => (
@@ -284,10 +319,10 @@ export function FilterSidebar({
                 ))}
               </select>
             </Field>
-            <label className="flex items-start gap-2 text-sm text-[#24304A]">
+            <label className="flex min-h-11 items-start gap-2.5 text-sm text-[#24304A]">
               <input
                 type="checkbox"
-                className="mt-0.5 accent-[#0E9E8B]"
+                className="mt-1 size-4 accent-[#0E9E8B]"
                 checked={filters.explicitLabelsOnly}
                 onChange={(event) =>
                   onChange({ ...filters, explicitLabelsOnly: event.target.checked })
@@ -297,16 +332,18 @@ export function FilterSidebar({
                 {vi ? "Chỉ nhãn sản phẩm rõ ràng" : "Explicit product labels only"}
               </span>
             </label>
-            <label className="flex items-start gap-2 text-sm text-[#24304A]">
+            <label className="flex min-h-11 items-start gap-2.5 text-sm text-[#24304A]">
               <input
                 type="checkbox"
-                className="mt-0.5 accent-[#0E9E8B]"
+                className="mt-1 size-4 accent-[#0E9E8B]"
                 checked={filters.includeUnavailable}
                 onChange={(event) =>
                   onChange({ ...filters, includeUnavailable: event.target.checked })
                 }
               />
-              <span>{vi ? "Gồm sản phẩm hết hàng" : "Include out-of-stock listings"}</span>
+              <span>
+                {vi ? "Gồm sản phẩm hết hàng" : "Include out-of-stock listings"}
+              </span>
             </label>
           </div>
         </details>
@@ -316,7 +353,10 @@ export function FilterSidebar({
             className={controlClass}
             value={filters.interval}
             onChange={(event) =>
-              onChange({ ...filters, interval: event.target.value as PanelFilters["interval"] })
+              onChange({
+                ...filters,
+                interval: event.target.value as PanelFilters["interval"],
+              })
             }
           >
             <option value="Daily">{vi ? "Ngày" : "Daily"}</option>
@@ -328,7 +368,7 @@ export function FilterSidebar({
         <button
           type="button"
           onClick={onReset}
-          className="w-full rounded-lg border border-[#d5e4de] px-3 py-2 text-sm font-semibold text-[#192E6D] hover:bg-[#F6F9F7]"
+          className="min-h-11 w-full rounded-xl border border-[#d5e4de] px-3 text-sm font-semibold text-[#192E6D] hover:bg-[#F6F9F7]"
         >
           {vi ? "Đặt lại bộ lọc" : "Reset filters"}
         </button>
