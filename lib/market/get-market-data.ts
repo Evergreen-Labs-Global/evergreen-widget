@@ -1,4 +1,10 @@
-import type { MarketResponse } from "@/types/market";
+import {
+  marketQueryString,
+  type MarketQuery,
+} from "@/lib/market/filters-query";
+import type { HousingSystem, MarketResponse, PriceLevel, TrendInterval } from "@/types/market";
+
+export type { MarketQuery };
 
 const MARKET_API_TIMEOUT_MS = 60_000;
 
@@ -17,6 +23,17 @@ function isMarketResponse(value: unknown): value is MarketResponse {
   );
 }
 
+export type MarketOptions = {
+  data_bounds: { start: string; end: string };
+  price_levels: PriceLevel[];
+  systems: HousingSystem[];
+  regions: string[];
+  provinces: string[];
+  brands: string[];
+  intervals: TrendInterval[];
+  policy_version: string;
+};
+
 export function marketApiBaseUrl(): string {
   const url = process.env.HF_MARKET_API_URL?.trim().replace(/\/$/, "");
   if (!url) {
@@ -25,12 +42,10 @@ export function marketApiBaseUrl(): string {
   return url;
 }
 
-export async function getMarketIntelligence(): Promise<MarketResponse> {
-  const endpoint = `${marketApiBaseUrl()}/api/v1/market`;
-
+async function fetchMarketApi(path: string): Promise<unknown> {
   let response: Response;
   try {
-    response = await fetch(endpoint, {
+    response = await fetch(`${marketApiBaseUrl()}${path}`, {
       signal: AbortSignal.timeout(MARKET_API_TIMEOUT_MS),
       next: { revalidate: 300 },
     });
@@ -43,11 +58,22 @@ export async function getMarketIntelligence(): Promise<MarketResponse> {
     throw new Error(`Market API returned ${response.status}.`);
   }
 
-  const body: unknown = await response.json();
+  return response.json();
+}
+
+export async function getMarketOptions(): Promise<MarketOptions> {
+  const body = await fetchMarketApi("/api/v1/options");
+  if (!body || typeof body !== "object") {
+    throw new Error("Market API returned unexpected filter options.");
+  }
+  return body as MarketOptions;
+}
+
+export async function getMarketIntelligence(query?: MarketQuery): Promise<MarketResponse> {
+  const body = await fetchMarketApi(`/api/v1/market${marketQueryString(query)}`);
   if (!isMarketResponse(body)) {
     throw new Error("Market API returned an unexpected response.");
   }
-
   return body;
 }
 

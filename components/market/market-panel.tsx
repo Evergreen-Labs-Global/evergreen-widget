@@ -9,10 +9,19 @@ import type {
   PriceLevel,
   TimeSeriesPoint,
 } from "@/types/market";
+import { FilterSidebar } from "@/components/market/filter-sidebar";
+import {
+  defaultFilters,
+  filtersToQuery,
+  isDefaultFilters,
+  type PanelFilters,
+} from "@/lib/market/filters";
+import { marketQueryString } from "@/lib/market/filters-query";
 import {
   formatCount,
   formatPercent,
   formatVnd,
+  type MarketOptions,
 } from "@/lib/market/get-market-data";
 import {
   getMessages,
@@ -171,6 +180,76 @@ export function MarketPanel({
   const t = getMessages(locale);
   const rootRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<Tab>("retail");
+  const bounds = data.meta.dataset_coverage;
+  const [filters, setFilters] = useState<PanelFilters>(() => defaultFilters(data.meta.dataset_coverage));
+  const [view, setView] = useState(data);
+  const [options, setOptions] = useState<MarketOptions | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/market/options", { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("options");
+        setOptions((await response.json()) as MarketOptions);
+      })
+      .catch((fetchError: unknown) => {
+        if (fetchError instanceof DOMException && fetchError.name === "AbortError") return;
+      });
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (isDefaultFilters(filters, bounds)) {
+      setView(data);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
+    const query = filtersToQuery(filters, bounds);
+    if ("error" in query) {
+      setLoading(false);
+      setError(
+        query.error === "systems"
+          ? locale === "vi"
+            ? "Chọn ít nhất một hệ thống chăn nuôi."
+            : "Select at least one production system."
+          : locale === "vi"
+            ? "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc."
+            : "Start date must be on or before the end date.",
+      );
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      setLoading(true);
+      setError(null);
+      fetch(`/api/market${marketQueryString(query)}`, { signal: controller.signal })
+        .then(async (response) => {
+          if (!response.ok) throw new Error("market");
+          const body = (await response.json()) as MarketResponse;
+          setView(body);
+          setLoading(false);
+        })
+        .catch((fetchError: unknown) => {
+          if (fetchError instanceof DOMException && fetchError.name === "AbortError") return;
+          setLoading(false);
+          setError(
+            locale === "vi"
+              ? "Không tải được dữ liệu cho bộ lọc này."
+              : "Could not load data for these filters.",
+          );
+        });
+    }, 250);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
+  }, [filters, bounds, data, locale]);
 
   useEffect(() => {
     const node = rootRef.current;
@@ -186,26 +265,26 @@ export function MarketPanel({
     const observer = new ResizeObserver(publish);
     observer.observe(node);
     return () => observer.disconnect();
-  }, [tab, locale]);
+  }, [tab, locale, view, loading, error, filters]);
 
   const retailSeries = useMemo(
     () =>
-      data.retail.time_series.series.map((s) => ({
+      view.retail.time_series.series.map((s) => ({
         name: labelSystem(locale, s.system),
         color: COLORS[s.system] ?? "#3A855D",
         points: s.points,
       })),
-    [data.retail.time_series.series, locale],
+    [view.retail.time_series.series, locale],
   );
 
   const supplySeries = useMemo(
     () =>
-      data.supply_chain.time_series.series.map((s) => ({
+      view.supply_chain.time_series.series.map((s) => ({
         name: labelPriceLevel(locale, s.price_level),
         color: COLORS[s.price_level] ?? "#3A855D",
         points: s.points,
       })),
-    [data.supply_chain.time_series.series, locale],
+    [view.supply_chain.time_series.series, locale],
   );
 
   const tabs: { id: Tab; label: string }[] = [
@@ -227,24 +306,56 @@ export function MarketPanel({
     <div
       ref={rootRef}
       lang={locale}
-      className="w-full bg-white text-foreground rounded-2xl border border-[#e8e4da] p-4 md:p-6"
+      className="flex w-full flex-col overflow-hidden rounded-2xl border border-[#e0e9e6] bg-[#F6F9F7] text-[#24304A] lg:flex-row"
     >
+      <FilterSidebar
+        locale={locale}
+        bounds={bounds}
+        options={options}
+        filters={filters}
+        onChange={setFilters}
+        onReset={() => setFilters(defaultFilters(bounds))}
+      />
+      <div className="min-w-0 flex-1 p-4 md:p-6" aria-busy={loading}>
+      {loading ? (
+        <p className="mb-3 text-xs font-semibold text-[#0A7F70]">
+          {locale === "vi" ? "Đang cập nhật bộ lọc…" : "Updating filters…"}
+        </p>
+      ) : null}
+      {error ? (
+        <p className="mb-3 rounded-lg border border-[#F0E2B2] bg-[#FFF8E3] px-3 py-2 text-sm text-[#69541B]">
+          {error}
+        </p>
+      ) : null}
+      {view.coverage.price_observations === 0 ? (
+        <p className="mb-3 rounded-lg border border-[#F0E2B2] bg-[#FFF8E3] px-3 py-2 text-sm text-[#69541B]">
+          {locale === "vi"
+            ? "Không có quan sát nào khớp bộ lọc này. Hãy nới khoảng ngày hoặc bỏ một lựa chọn."
+            : "No observations match these filters. Broaden the date range or clear a selection."}
+        </p>
+      ) : null}
       <header className="mb-5">
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
-            {t.eyebrow}
-          </p>
-          <span className="rounded-full bg-[#ECF7F2] text-[#147D6F] px-3 py-1 text-[11px] font-bold">
-            {locale === "vi" ? "VI" : "EN"} · {data.meta.policy_version}
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <img
+            src="/healthyfarmlogo.png"
+            alt="HealthyFarm"
+            className="h-12 w-auto"
+          />
+          <span className="rounded-full border border-[#CEE7E1] bg-[#ECF7F2] px-3 py-1 text-[11px] font-extrabold text-[#147D6F]">
+            {locale === "vi" ? "VI" : "EN"} · {view.meta.policy_version}
           </span>
         </div>
-        <h1 className="font-serif text-2xl md:text-3xl font-bold text-[#192E6D]">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[#0A7F70]">
+          {t.eyebrow}
+        </p>
+        <h1 className="mt-1 font-serif text-2xl font-bold text-[#192E6D] md:text-3xl">
           {locale === "vi" ? "Tín hiệu giá trứng Việt Nam" : "Vietnam Egg Price Intelligence"}
         </h1>
+        <div className="mt-4 h-1 rounded-full bg-[linear-gradient(90deg,#0E9E8B_0%,#0E9E8B_75%,#FFD230_75%,#FFD230_100%)]" />
         <p className="text-sm text-muted-foreground mt-2 max-w-2xl">
           {locale === "vi"
-            ? `Kỳ đã chọn ${data.meta.selected_period.start} → ${data.meta.selected_period.end}. Mới nhất trong khung nhìn: ${data.meta.latest_in_view}.`
-            : `Selected period ${data.meta.selected_period.start} → ${data.meta.selected_period.end}. Latest in view: ${data.meta.latest_in_view}.`}
+            ? `Kỳ đã chọn ${view.meta.selected_period.start} → ${view.meta.selected_period.end}. Mới nhất trong khung nhìn: ${view.meta.latest_in_view}.`
+            : `Selected period ${view.meta.selected_period.start} → ${view.meta.selected_period.end}. Latest in view: ${view.meta.latest_in_view}.`}
         </p>
       </header>
 
@@ -256,13 +367,13 @@ export function MarketPanel({
               : "Understand prices before planning your next move."}
           </h2>
           <p className="text-sm text-[#D8E4F5] mt-2">
-            {formatCount(data.coverage.price_observations, locale)}{" "}
+            {formatCount(view.coverage.price_observations, locale)}{" "}
             {locale === "vi" ? "quan sát giá trong bộ lọc hiện tại." : "price observations in the current view."}
           </p>
         </div>
         <div className="sm:border-l sm:border-white/20 sm:pl-5">
           <p className="font-serif text-2xl font-bold text-[#FFD230]">
-            {data.meta.latest_in_view}
+            {view.meta.latest_in_view}
           </p>
           <p className="text-[11px] uppercase tracking-wide text-[#E0E7F4]">
             {locale === "vi" ? "Ngày mới nhất" : "Latest in view"}
@@ -290,7 +401,7 @@ export function MarketPanel({
       {tab === "retail" && (
         <div className="space-y-6">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {data.retail.summary_by_system.map((row) => (
+            {view.retail.summary_by_system.map((row) => (
               <article
                 key={row.system}
                 className="rounded-2xl border bg-white p-4"
@@ -312,7 +423,7 @@ export function MarketPanel({
                 {locale === "vi" ? "Thương hiệu" : "Brands represented"}
               </p>
               <p className="font-serif text-2xl font-bold text-[#192E6D] mt-1">
-                {data.coverage.brands}
+                {view.coverage.brands}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 {locale === "vi" ? "Trong mẫu bán lẻ đã chọn" : "In the selected retail sample"}
@@ -327,13 +438,13 @@ export function MarketPanel({
                 ? "So sánh bán lẻ chưa điều chỉnh"
                 : "Unadjusted retail comparison"
             }
-            comparison={data.retail.unadjusted_comparison}
+            comparison={view.retail.unadjusted_comparison}
           />
 
           <section>
             <h2 className="font-serif text-xl font-bold">{t.priceTrend}</h2>
             <p className="text-sm text-muted-foreground mb-3">
-              {labelInterval(locale, data.retail.time_series.interval)} {t.average}
+              {labelInterval(locale, view.retail.time_series.interval)} {t.average}
             </p>
             <div className="flex gap-4 text-xs mb-2">
               {retailSeries.map((s) => (
@@ -353,11 +464,11 @@ export function MarketPanel({
                 ? "Chênh lệch nhà ở đã so khớp"
                 : "Matched housing comparison"
             }
-            comparison={data.retail.matched_housing_comparison}
+            comparison={view.retail.matched_housing_comparison}
           />
 
           <section className="grid gap-4 md:grid-cols-2">
-            {data.retail.insights.map((insight) => (
+            {view.retail.insights.map((insight) => (
               <InsightCard
                 key={`${insight.system}-${insight.price_level}`}
                 insight={insight}
@@ -380,7 +491,7 @@ export function MarketPanel({
                   </tr>
                 </thead>
                 <tbody>
-                  {data.retail.regional_summary.map((row) => (
+                  {view.retail.regional_summary.map((row) => (
                     <tr key={`${row.region}-${row.system}`} className="border-t">
                       <td className="p-3">{labelRegion(locale, row.region)}</td>
                       <td className="p-3">{labelSystem(locale, row.system)}</td>
@@ -409,7 +520,7 @@ export function MarketPanel({
                   </tr>
                 </thead>
                 <tbody>
-                  {data.retail.brand_summary.map((row, index) => (
+                  {view.retail.brand_summary.map((row, index) => (
                     <tr key={`${row.brand ?? "none"}-${row.system}-${index}`} className="border-t">
                       <td className="p-3">
                         {row.brand ?? (locale === "vi" ? "Không ghi nhận" : "Not recorded")}
@@ -429,7 +540,7 @@ export function MarketPanel({
       {tab === "supply" && (
         <div className="space-y-6">
           <div className="grid gap-3 sm:grid-cols-2">
-            {data.supply_chain.summary_by_level.map((row) => (
+            {view.supply_chain.summary_by_level.map((row) => (
               <article
                 key={row.price_level}
                 className="rounded-2xl border p-4"
@@ -465,7 +576,7 @@ export function MarketPanel({
             <PriceChart series={supplySeries} label={t.chartLabel} />
           </section>
           <section className="grid gap-3 md:grid-cols-2">
-            {(Object.entries(data.supply_chain.spreads_by_system) as [
+            {(Object.entries(view.supply_chain.spreads_by_system) as [
               HousingSystem,
               PriceComparison | null,
             ][]).map(([system, spread]) => (
@@ -478,7 +589,7 @@ export function MarketPanel({
             ))}
           </section>
           <section className="grid gap-4 md:grid-cols-2">
-            {data.supply_chain.farmgate_insights.map((insight) => (
+            {view.supply_chain.farmgate_insights.map((insight) => (
               <InsightCard
                 key={`${insight.system}-${insight.price_level}`}
                 insight={insight}
@@ -497,7 +608,7 @@ export function MarketPanel({
                 {locale === "vi" ? "Quan sát giá" : "Price observations"}
               </p>
               <p className="font-serif text-2xl font-bold text-[#192E6D]">
-                {formatCount(data.coverage.price_observations, locale)}
+                {formatCount(view.coverage.price_observations, locale)}
               </p>
             </article>
             <article className="rounded-2xl border p-4">
@@ -505,7 +616,7 @@ export function MarketPanel({
                 {locale === "vi" ? "Ngày quan sát" : "Observed dates"}
               </p>
               <p className="font-serif text-2xl font-bold text-[#192E6D]">
-                {data.coverage.observed_dates}
+                {view.coverage.observed_dates}
               </p>
             </article>
             <article className="rounded-2xl border p-4">
@@ -513,13 +624,13 @@ export function MarketPanel({
                 {locale === "vi" ? "Thương hiệu" : "Brands"}
               </p>
               <p className="font-serif text-2xl font-bold text-[#192E6D]">
-                {data.coverage.brands}
+                {view.coverage.brands}
               </p>
             </article>
           </div>
-          {data.coverage.unclassified_observations > 0 && (
+          {view.coverage.unclassified_observations > 0 && (
             <p className="text-sm text-muted-foreground">
-              {formatCount(data.coverage.unclassified_observations, locale)}{" "}
+              {formatCount(view.coverage.unclassified_observations, locale)}{" "}
               {locale === "vi"
                 ? "quan sát chưa phân loại hệ thống chuồng — không vào so sánh hệ thống chăn nuôi."
                 : "observations await housing classification and are excluded from production-system comparisons."}
@@ -537,7 +648,7 @@ export function MarketPanel({
                 </tr>
               </thead>
               <tbody>
-                {data.coverage.matrix.map((row) => (
+                {view.coverage.matrix.map((row) => (
                   <tr key={`${row.price_level}-${row.system}`} className="border-t">
                     <td className="p-3">{labelPriceLevel(locale, row.price_level as PriceLevel)}</td>
                     <td className="p-3">{labelSystem(locale, row.system)}</td>
@@ -551,11 +662,12 @@ export function MarketPanel({
           </div>
           <p className="text-xs text-muted-foreground">
             {locale === "vi"
-              ? `Phạm vi dữ liệu ${data.meta.dataset_coverage.start} → ${data.meta.dataset_coverage.end}. Khoảng trống trên biểu đồ nghĩa là không có quan sát, không phải giá bằng 0.`
-              : `Dataset coverage ${data.meta.dataset_coverage.start} → ${data.meta.dataset_coverage.end}. Chart gaps mean no observations, not a zero price.`}
+              ? `Phạm vi dữ liệu ${view.meta.dataset_coverage.start} → ${view.meta.dataset_coverage.end}. Khoảng trống trên biểu đồ nghĩa là không có quan sát, không phải giá bằng 0.`
+              : `Dataset coverage ${view.meta.dataset_coverage.start} → ${view.meta.dataset_coverage.end}. Chart gaps mean no observations, not a zero price.`}
           </p>
         </div>
       )}
+      </div>
     </div>
   );
 }
